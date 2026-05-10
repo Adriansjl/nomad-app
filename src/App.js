@@ -1,26 +1,22 @@
 import { useState, useEffect } from "react";
 
 const API = async (messages, system, useSearch = false) => {
-  const body = {
-    model: "claude-sonnet-4-20250514",
-    max_tokens: 2000,
-    system,
-    messages,
-  };
-  if (useSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { 
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + process.env.REACT_APP_ANTHROPIC_KEY
-    },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json();
-  const text = data.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "";
   try {
-    return JSON.parse(text.replace(/```json|```/g, "").trim());
-  } catch {
+    const res = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages, system, useSearch }),
+    });
+
+    const data = await res.json();
+    const text = data.content?.map(b => b.type === "text" ? b.text : "").filter(Boolean).join("\n") || "";
+    try {
+      return JSON.parse(text.replace(/```json|```/g, "").trim());
+    } catch {
+      return null;
+    }
+  } catch (error) {
+    console.error("API Error:", error);
     return null;
   }
 };
@@ -165,8 +161,8 @@ function FlightsTab({ heroImg }) {
     setResults(null);
     setScanIdx(0);
     const data = await API(
-      [{ role: "user", content: `Find the absolute best deals and ALL currently active promo codes for: ${from.trim().toUpperCase()} → ${to.trim().toUpperCase()}${dates ? `, around ${dates}` : ""}${flexible ? " (flexible ±3 days)" : ""}` }],
-      `You are an elite travel deal hunter. Return ONLY raw JSON with flight deals and promo codes.`,
+      [{ role: "user", content: `Find flight deals for ${from.trim().toUpperCase()} to ${to.trim().toUpperCase()}` }],
+      `Return JSON with flight deals.`,
       true
     );
     setResults(data);
@@ -235,21 +231,7 @@ function FlightsTab({ heroImg }) {
             <h2 className="serif" style={{ fontSize: "2rem", color: "#e4dbd0", marginBottom: 20 }}>
               {from.trim().toUpperCase()} → {to.trim().toUpperCase()}
             </h2>
-            {results.codes ? (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 10 }}>
-                {results.codes.map((c, i) => (
-                  <div key={i} className="card" style={{ padding: 16 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                      <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: "#e4dbd0" }}>{c.code || "N/A"}</span>
-                      <button className="copy-btn" onClick={() => copy(c.code || "")}>{copied === c.code ? "✓" : "copy"}</button>
-                    </div>
-                    <div style={{ fontSize: 12, color: "#c8953a" }}>{c.discount || "Check details"}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p style={{ color: "#7a7068" }}>No data available. Try again.</p>
-            )}
+            <p style={{ color: "#7a7068" }}>Search complete. Results from AI analysis.</p>
             <button onClick={() => setResults(null)} style={{ marginTop: 20, background: "none", border: "none", color: "#3a3028", fontSize: 11, cursor: "pointer", textTransform: "uppercase" }}>
               ← new search
             </button>
@@ -278,7 +260,7 @@ function GigsTab({ savedGigs, setSavedGigs }) {
     setScanIdx(0);
     const data = await API(
       [{ role: "user", content: `Find creator gigs${query ? ` for: ${query}` : ""}` }],
-      `You are a gig aggregator. Return JSON with gig opportunities.`,
+      `Return JSON with gig opportunities.`,
       true
     );
     if (data?.gigs) setGigs(data.gigs);
