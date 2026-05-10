@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 
 const API = async (messages, system, useSearch = false) => {
   const body = {
@@ -8,7 +8,7 @@ const API = async (messages, system, useSearch = false) => {
     messages,
   };
   if (useSearch) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
-  const res = await fetch("https://cors-anywhere.herokuapp.com/https://api.anthropic.com/v1/messages", {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
@@ -302,8 +302,7 @@ Find 5-8 real active codes. Be specific about which airlines/OTAs they apply to.
                       <div style={{ fontSize: 18, color: "#c8953a", fontWeight: 600, marginBottom: 8 }}>{c.discount}</div>
                       <p style={{ fontSize: 11, color: "#4a4030", lineHeight: 1.5, marginBottom: 10 }}>{c.howToUse}</p>
                       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        <span className="mono" style={{ fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase" }}
-                          className={`mono conf-${c.confidence}`}>● {c.confidence}</span>
+                        <span className={`mono conf-${c.confidence}`} style={{ fontSize: 9, letterSpacing: ".1em", textTransform: "uppercase" }}>● {c.confidence}</span>
                         {c.expires && <span className="mono" style={{ fontSize: 9, color: "#3a3028", letterSpacing: ".08em" }}>exp {c.expires}</span>}
                       </div>
                     </div>
@@ -511,14 +510,12 @@ Find 8-10 varied gigs. Include platform source. Be specific about pay ranges. Mi
               <div style={{ padding: "14px 16px 16px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 6, gap: 8 }}>
                   <div>
-                    <div className="mono" style={{ fontSize: 9, letterSpacing: ".15em", marginBottom: 4 }}
-                      style={{ color: PLATFORM_COLORS[gig.platform] || "#c8953a", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: ".15em", marginBottom: 4 }}>
+                    <div style={{ color: PLATFORM_COLORS[gig.platform] || "#c8953a", fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: ".15em", marginBottom: 4 }}>
                       {gig.platform} · {gig.posted}
                     </div>
                     <h3 style={{ fontSize: 14, color: "#d4cfc8", fontWeight: 500, lineHeight: 1.35 }}>{gig.title}</h3>
                   </div>
-                  <button onClick={() => toggleSave(gig)} className="save-btn" style={{ marginTop: 2 }}
-                    className={`save-btn ${isSaved(gig.id) ? "saved" : "unsaved"}`}>
+                  <button onClick={() => toggleSave(gig)} className={`save-btn ${isSaved(gig.id) ? "saved" : "unsaved"}`} style={{ marginTop: 2 }}>
                     {isSaved(gig.id) ? "♥" : "♡"}
                   </button>
                 </div>
@@ -528,7 +525,7 @@ Find 8-10 varied gigs. Include platform source. Be specific about pay ranges. Mi
                   <span style={{ fontSize: 11, color: "#4a4030" }}>📍 {gig.location}</span>
                   <span className="mono" style={{ fontSize: 13, color: "#c8953a", fontWeight: 600 }}>{gig.pay}</span>
                 </div>
-                <span className={`pill`} style={{
+                <span className="pill" style={{
                   background: "rgba(200,149,58,.08)", color: "#7a5a1f",
                   fontFamily: "'JetBrains Mono', monospace", fontSize: 9, letterSpacing: ".12em",
                   textTransform: "uppercase", padding: "3px 8px", borderRadius: 3
